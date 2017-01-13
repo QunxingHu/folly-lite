@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 2.8)
 project (FOLLY-LITE)
 
 # initialize variables
@@ -42,7 +43,7 @@ elseif (UNIX)
 endif()
 
 # decide use jemalloc or not
-if (NOT USE_JEMALLOC)
+if (USE_JEMALLOC)
 	message("================ USE jemalloc =======================")
 	aux_source_directory(${PROJECT_SOURCE_DIR}/jemalloc/src JEMALLOC_SRC_LIST)
 	set(PRIVATE_SRC_LIST ${PRIVATE_SRC_LIST} ${JEMALLOC_SRC_LIST})
