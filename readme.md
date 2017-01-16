@@ -1,11 +1,9 @@
-# For windows
+# Folly Details
 [FBVector](https://github.com/facebook/folly/blob/master/folly/docs/FBVector.md) and
 [FBString](https://github.com/facebook/folly/blob/master/folly/docs/FBString.md) seemed
 to be very interesting, what a pity if one cannot use them on windows machine!
 
 # For linux
-- boost
-
 - CPortability.h
 
 - FBString.h
@@ -26,3 +24,6 @@ to be very interesting, what a pity if one cannot use them on windows machine!
 - Traits.h
 
 
+# For windows
+
+# For Macos

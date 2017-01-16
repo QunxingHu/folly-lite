@@ -9,8 +9,8 @@ set (PRIVATE_SRC_LIST "")
 # set complie flags
 set(CMAKE_VERBOSE_MAKEFILE on)
 set(CMAKE_CXX_COMPILER "g++")
-set(CMAKE_CXX_FLAGS "-Wall")
-add_compile_options(-std=c++11)
+set(CMAKE_CXX_FLAGS " -std=c++11 -Wall ")
+#add_compile_options()
 
 # set output path
 set(EXECUTABLE_OUTPUT_PATH ./bin)
@@ -32,28 +32,22 @@ set(TEST_SRC_LIST
 # decide use boost or not
 if (WIN32)
 	message("================= WINDOWS 32 =======================")
-	aux_source_directory(${PROJECT_SOURCE_DIR}/boost BOOST_SRC_LIST)	
-  	set(PRIVATE_SRC_LIST ${PRIVATE_SRC_LIST} ${BOOST_SRC_LIST})
-  	set(PRIVATE_INCLUDE_DIRS ${PRIVATE_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/boost)
-elseif (UNIX)
+
+elseif (APPLE)
 	message("================= UNIX ==============================")
-	aux_source_directory(${PROJECT_SOURCE_DIR}/boost BOOST_SRC_LIST)
-  	set(PRIVATE_SRC_LIST ${PRIVATE_SRC_LIST} ${BOOST_SRC_LIST})
-  	set(PRIVATE_INCLUDE_DIRS ${PRIVATE_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/boost)
+
 endif()
 
 # decide use jemalloc or not
 if (USE_JEMALLOC)
 	message("================ USE jemalloc =======================")
-	aux_source_directory(${PROJECT_SOURCE_DIR}/jemalloc/src JEMALLOC_SRC_LIST)
-	set(PRIVATE_SRC_LIST ${PRIVATE_SRC_LIST} ${JEMALLOC_SRC_LIST})
-	set(PRIVATE_INCLUDE_DIRS ${PRIVATE_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/jemalloc/include)
+
 endif()
 
 
 # set source files and include directories
 set (PRIVATE_SRC_LIST ${PRIVATE_SRC_LIST}
-	${FOLLY_SRC_LIST}
+	# ${FOLLY_SRC_LIST}
 	)
 
 set (PRIVATE_INCLUDE_DIRS ${PRIVATE_INCLUDE_DIRS}
@@ -64,5 +58,5 @@ set (SRC_LIST ${PRIVATE_SRC_LIST})
 include_directories( ${PRIVATE_INCLUDE_DIRS} )
 
 # build target
-add_library(folly-lite SHARED ${FOLLY_SRC_LIST})
+# add_library(folly-lite SHARED ${FOLLY_SRC_LIST})
 add_executable(testMain MACOSX_BUNDLE ${TEST_SRC_LIST})
