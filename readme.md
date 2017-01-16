@@ -4,6 +4,11 @@
 to be very interesting, what a pity if one cannot use them on windows machine!
 
 # For linux
+## Install
+1. install boost : `sudo apt-get install libboost-all-dev`
+2. install gcc-5 , g++-5 : `sudo apt-get install gcc-5 g++-5`
+
+## Usage
 - CPortability.h
 
 - FBString.h
