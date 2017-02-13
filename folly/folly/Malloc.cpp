@@ -67,11 +67,13 @@ bool usingJEMallocSlow() {
   void* ptr = je_malloc(1);
   if (!ptr) {
     // wtf, failing to allocate 1 byte
+    printf("~_~ jemalloc failed. 1 \n");
     goto failed;
   }
   je_free(ptr);
 
   if (origAllocated == *counter)
+     printf("~_~ jemalloc failed. 2 \n");
     goto failed;
 
   folly_malloc = je_malloc;

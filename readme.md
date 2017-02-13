@@ -1,9 +1,10 @@
 # Folly Details
 [FBVector](https://github.com/facebook/folly/blob/master/folly/docs/FBVector.md) and
 [FBString](https://github.com/facebook/folly/blob/master/folly/docs/FBString.md) seemed
-to be very interesting, what a pity if one cannot use them on windows machine!
+
 
 # For linux
+
 - CPortability.h
 
 - FBString.h
@@ -22,6 +23,9 @@ to be very interesting, what a pity if one cannot use them on windows machine!
 - ScopeGuard.h
 - SpookyHashV1
 - Traits.h
+
+## usage
+- GCC version must be 4.8 or above.
 
 
 # For windows

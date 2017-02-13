@@ -1,0 +1,53 @@
+set(EXECUTABLE_OUTPUT_PATH ./bin)
+set(LIBRARY_OUTPUT_PATH ./lib)
+
+unset (PRIVATE_LIB_JEMALLOC CACHE)
+find_library (
+    PRIVATE_LIB_JEMALLOC
+    NAMES "jemalloc"
+)
+if ("PRIVATE_LIB_JEMALLOC-NOTFOUND" STREQUAL "${PRIVATE_LIB_JEMALLOC}" AND UNIX)
+    if (APPLE AND (NOT (CMAKE_OSX_ARCHITECTURES STREQUAL "")))
+        set (PRIVATE_JEMALLOC_FLAGS "-arch ${CMAKE_OSX_ARCHITECTURES}")
+    else ()
+        set (PRIVATE_JEMALLOC_FLAGS "")
+    endif ()
+    if (NOT MSVC)
+        # suppose all compilers except MSVC support the "-std" argument.
+        set (PRIVATE_JEMALLOC_FLAGS "${PRIVATE_JEMALLOC_FLAGS} -std=gnu99")
+    endif ()
+
+    include (ExternalProject)
+    ExternalProject_Add (libjemalloc-target
+        SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/src"
+        #PREFIX "${PROJECT_SOURCE_DIR}/libjemalloc"
+        #BINARY_DIR "${PROJECT_SOURCE_DIR}/libjemalloc/build"
+        #STAMP_DIR "${PROJECT_SOURCE_DIR}/libjemalloc/timestamp"
+        #TMP_DIR "${PROJECT_SOURCE_DIR}/libjemalloc/tmp"
+        CONFIGURE_COMMAND "${CMAKE_CURRENT_LIST_DIR}/configure"
+            "--with-jemalloc-prefix=je_"
+            "--disable-stats"
+            "--enable-fill"
+            "--prefix=${CMAKE_CURRENT_BINARY_DIR}/jemalloc"
+            "je_cv_static_page_shift=12"
+            "CC=${CMAKE_C_COMPILER} ${CMAKE_C_COMPILER_ARG1}"
+            "CPPFLAGS=${CMAKE_C_FLAGS} ${PRIVATE_JEMALLOC_FLAGS}"
+            "CFLAGS=${CMAKE_C_FLAGS} ${PRIVATE_JEMALLOC_FLAGS}"
+            "LDFLAGS=${CMAKE_C_FLAGS} ${PRIVATE_JEMALLOC_FLAGS}"
+        BUILD_COMMAND "make" "build_lib"
+        INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        INSTALL_COMMAND  "$(MAKE)"  install_include install_lib  install_bin
+        )
+    add_library(libjemalloc SHARED IMPORTED)
+    add_dependencies (libjemalloc libjemalloc-target)
+
+elseif (NOT "PRIVATE_LIB_JEMALLOC-NOTFOUND" STREQUAL "${PRIVATE_LIB_JEMALLOC}")
+    add_library(libjemalloc SHARED IMPORTED)
+    set_target_properties(libjemalloc PROPERTIES
+        IMPORTED_LOCATION "${PRIVATE_LIB_JEMALLOC}"
+        )
+endif ()
+
+
+
+

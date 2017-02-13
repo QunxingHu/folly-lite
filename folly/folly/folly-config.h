@@ -441,6 +441,7 @@
 
 /* Enable jemalloc */
 /* #undef USE_JEMALLOC */
+#define FOLLY_USE_JEMALLOC 1
 
 /* Define to 1 if we are using libc++. */
 /* #undef USE_LIBCPP */

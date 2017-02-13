@@ -1,0 +1,1 @@
+cmd='/home/hqx/code/folly-lite/folly-lite/jemalloc/jemalloc-4.2.0/configure;--with-jemalloc-prefix=je_;--disable-stats;--enable-fill;--prefix=/home/hqx/build/folly-lite/jemalloc;je_cv_static_page_shift=12;CC=/usr/bin/cc ;CPPFLAGS=  -std=gnu99;CFLAGS=  -std=gnu99;LDFLAGS=  -std=gnu99'
