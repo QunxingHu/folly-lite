@@ -14,6 +14,7 @@ set(CMAKE_CXX_FLAGS "-g -std=c++11 -pthread")
 # set output path
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/lib)
+set(BUILD_OUT_PATH ${CMAKE_CURRENT_BINARY_DIR})
 
 # set folly source list
 set(FOLLY_SRC_LIST
@@ -63,8 +64,8 @@ if (USE_JEMALLOC)
 	message("compile jemalloc begain....")
 	unset (PRIVATE_LIB_JEMALLOC CACHE)
 	find_library (
-	PRIVATE_LIB_JEMALLOC
-	NAMES "jemalloc"
+		PRIVATE_LIB_JEMALLOC
+		NAMES "jemalloc"
 	)
 	if ("PRIVATE_LIB_JEMALLOC-NOTFOUND" STREQUAL "${PRIVATE_LIB_JEMALLOC}" AND UNIX)
 	if (APPLE AND (NOT (CMAKE_OSX_ARCHITECTURES STREQUAL "")))
@@ -80,15 +81,15 @@ if (USE_JEMALLOC)
 	include (ExternalProject)
 	ExternalProject_Add (libjemalloc-target
 	    SOURCE_DIR "${PROJECT_SOURCE_DIR}/jemalloc/jemalloc-4.2.0/src"
-	    PREFIX "${PROJECT_SOURCE_DIR}/libjemalloc"
-	    BINARY_DIR "${PROJECT_SOURCE_DIR}/libjemalloc/build"
-	    STAMP_DIR "${PROJECT_SOURCE_DIR}/libjemalloc/timestamp"
-	    TMP_DIR "${PROJECT_SOURCE_DIR}/libjemalloc/tmp"
+	    PREFIX "${PROJECT_SOURCE_DIR}/jemalloc"
+	    BINARY_DIR "${BUILD_OUT_PATH}/CMakeFiles/CMakeTmp/jemalloc/build"
+	    STAMP_DIR "${BUILD_OUT_PATH}/CMakeFiles/CMakeTmp/jemalloc/timestamp"
+	    TMP_DIR "${BUILD_OUT_PATH}/CMakeFiles/CMakeTmp/jemalloc/tmp"
 	    CONFIGURE_COMMAND "${PROJECT_SOURCE_DIR}/jemalloc/jemalloc-4.2.0/configure"
 	        "--with-jemalloc-prefix=je_"
 	        "--disable-stats"
 	        "--enable-fill"
-	        "--prefix=${CMAKE_CURRENT_BINARY_DIR}/jemalloc"
+	        "--prefix=${BUILD_OUT_PATH}"
 	        "je_cv_static_page_shift=12"
 	        "CC=${CMAKE_C_COMPILER} ${CMAKE_C_COMPILER_ARG1}"
 	        "CPPFLAGS=${CMAKE_C_FLAGS} ${PRIVATE_JEMALLOC_FLAGS}"
@@ -108,17 +109,17 @@ if (USE_JEMALLOC)
 	    )
 	endif ()
 	message("compile jemalloc end.")
+	
+    link_libraries(${CMAKE_CURRENT_BINARY_DIR}/lib/libjemalloc.so)
+    set (SRC_LIST ${PRIVATE_SRC_LIST})
+	include_directories( ${PRIVATE_INCLUDE_DIRS} )
+	add_executable(testMain ${PRIVATE_SRC_LIST})
+	add_dependencies(testMain libjemalloc)
+else()
+	set (SRC_LIST ${PRIVATE_SRC_LIST})
+	include_directories( ${PRIVATE_INCLUDE_DIRS} )
+	add_executable(testMain ${PRIVATE_SRC_LIST})
 endif()
-
-link_directories(${CMAKE_CURRENT_BINARY_DIR}/)
-link_libraries(${CMAKE_CURRENT_BINARY_DIR}/jemalloc/lib/libjemalloc.so)
-set (SRC_LIST ${PRIVATE_SRC_LIST})
-include_directories( ${PRIVATE_INCLUDE_DIRS} )
-
-# build target
-#add_library(folly-lite SHARED ${FOLLY_SRC_LIST})
-add_executable(testMain ${PRIVATE_SRC_LIST})
-
 
 # gcc ex_stats_print.c -o ex_stats_print -I/home/hqx/code/folly-lite/folly-lite/jemalloc/include -L/home/hqx/code/folly-lite/folly-lite/jemalloc/lib -Wl,-rpath,/home/hqx/code/folly-lite/folly-lite/jemalloc/lib -ljemalloc-navi
 # gcc ex_stats_print.c -o ex_stats_print -I/home/hqx/Downloads/jemalloc-cmake-4.3.0/include -L/home/hqx/Downloads/jemalloc-cmake-4.3.0/lib -Wl,-rpath,/home/hqx/Downloads/jemalloc-cmake-4.3.0/lib -ljemalloc
