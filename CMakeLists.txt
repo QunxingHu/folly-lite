@@ -8,8 +8,10 @@ set (PRIVATE_SRC_LIST "")
 
 # set complie flags
 set(CMAKE_VERBOSE_MAKEFILE on)
-set(CMAKE_CXX_COMPILER "g++")
-set(CMAKE_CXX_FLAGS "-g -std=c++11 -pthread")
+set(PRIVATE_FOLLY_CXX_FLAGS  
+	"-pthread"
+	"-std=c++11"
+	)
 
 # set output path
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/bin)
@@ -27,16 +29,21 @@ set(FOLLY_SRC_LIST
 
 # set test file list
 set(TEST_SRC_LIST
-	${PROJECT_SOURCE_DIR}/test/testFBVector.cpp
+	${PROJECT_SOURCE_DIR}/test/main.cpp
 )
 
 # decide use boost or not
+# in win32 platform use local boost, in unix and linux use host boost as default.
 if (WIN32)
 	message("================= WINDOWS 32 =======================")
-
+	set(PRIVATE_INCLUDE_DIRS ${PRIVATE_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/boost/)
+	set(PRIVATE_FOLLY_CXX_FLAGS ${PRIVATE_FOLLY_CXX_FLAGS} -DWIN32)
 elseif (APPLE)
 	message("================= UNIX ==============================")
-
+	set(PRIVATE_FOLLY_CXX_FLAGS ${PRIVATE_FOLLY_CXX_FLAGS} -DUNIX)
+else()
+	message("================== LINUX ============================")
+	set(PRIVATE_FOLLY_CXX_FLAGS ${PRIVATE_FOLLY_CXX_FLAGS} -DLINUX)
 endif()
 
 
@@ -51,6 +58,7 @@ set (PRIVATE_INCLUDE_DIRS ${PRIVATE_INCLUDE_DIRS}
 	${PROJECT_SOURCE_DIR}/jemalloc/include
 	)
 
+add_compile_options(${PRIVATE_FOLLY_CXX_FLAGS})
 
 set (USE_JEMALLOC true)
 # decide use jemalloc or not
@@ -78,7 +86,16 @@ if (USE_JEMALLOC)
 	    set (PRIVATE_JEMALLOC_FLAGS "${PRIVATE_JEMALLOC_FLAGS} -std=gnu99")
 	endif ()
 
-	include (ExternalProject)
+	# to compilde jemalloc, you should first run ./autogen.sh first in jemalloc source file folder
+	add_custom_command(
+			OUTPUT  ${PROJECT_SOURCE_DIR}/jemalloc/jemalloc-4.2.0/configure
+			COMMAND sh ${PROJECT_SOURCE_DIR}/jemalloc/jemalloc-4.2.0/autogen.sh
+			WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/jemalloc/jemalloc-4.2.0
+			COMMENT "run autogen to generate configure"
+			)
+	add_custom_target(T1 ALL DEPENDS ${PROJECT_SOURCE_DIR}/jemalloc/jemalloc-4.2.0/configure)
+
+	include(ExternalProject)
 	ExternalProject_Add (libjemalloc-target
 	    SOURCE_DIR "${PROJECT_SOURCE_DIR}/jemalloc/jemalloc-4.2.0/src"
 	    PREFIX "${PROJECT_SOURCE_DIR}/jemalloc"
@@ -99,8 +116,10 @@ if (USE_JEMALLOC)
 	    INSTALL_DIR "${LIBRARY_OUTPUT_PATH}"
 	    INSTALL_COMMAND  "make"  install_include install_lib  install_bin
 	    )
+	add_dependencies(libjemalloc-target ${PROJECT_SOURCE_DIR}/jemalloc/jemalloc-4.2.0/configure)
 	add_library(libjemalloc SHARED IMPORTED)
 	add_dependencies (libjemalloc libjemalloc-target)
+
 
 	elseif (NOT "PRIVATE_LIB_JEMALLOC-NOTFOUND" STREQUAL "${PRIVATE_LIB_JEMALLOC}")
 	add_library(libjemalloc SHARED IMPORTED)
@@ -108,7 +127,6 @@ if (USE_JEMALLOC)
 	    IMPORTED_LOCATION "${PRIVATE_LIB_JEMALLOC}"
 	    )
 	endif ()
-	message("compile jemalloc end.")
 	
     link_libraries(${CMAKE_CURRENT_BINARY_DIR}/lib/libjemalloc.so)
     set (SRC_LIST ${PRIVATE_SRC_LIST})
@@ -120,6 +138,3 @@ else()
 	include_directories( ${PRIVATE_INCLUDE_DIRS} )
 	add_executable(testMain ${PRIVATE_SRC_LIST})
 endif()
-
-# gcc ex_stats_print.c -o ex_stats_print -I/home/hqx/code/folly-lite/folly-lite/jemalloc/include -L/home/hqx/code/folly-lite/folly-lite/jemalloc/lib -Wl,-rpath,/home/hqx/code/folly-lite/folly-lite/jemalloc/lib -ljemalloc-navi
-# gcc ex_stats_print.c -o ex_stats_print -I/home/hqx/Downloads/jemalloc-cmake-4.3.0/include -L/home/hqx/Downloads/jemalloc-cmake-4.3.0/lib -Wl,-rpath,/home/hqx/Downloads/jemalloc-cmake-4.3.0/lib -ljemalloc
