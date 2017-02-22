@@ -8,7 +8,7 @@ set (PRIVATE_SRC_LIST "")
 
 # set complie flags
 set(CMAKE_VERBOSE_MAKEFILE on)
-set(PRIVATE_FOLLY_CXX_FLAGS  
+set(PRIVATE_FOLLY_CXX_FLAGS
 	"-pthread"
 	"-std=c++11"
 	)
@@ -20,17 +20,12 @@ set(BUILD_OUT_PATH ${CMAKE_CURRENT_BINARY_DIR})
 
 # set folly source list
 set(FOLLY_SRC_LIST
-	${PROJECT_SOURCE_DIR}/folly/folly/SpookyHashV1.cpp
-	${PROJECT_SOURCE_DIR}/folly/folly/SpookyHashV2.cpp
-	${PROJECT_SOURCE_DIR}/folly/folly/detail/MallocImpl.cpp
-	${PROJECT_SOURCE_DIR}/folly/folly/portability/BitsFunctexcept.cpp
+	#${PROJECT_SOURCE_DIR}/folly/folly/SpookyHashV1.cpp
+	#${PROJECT_SOURCE_DIR}/folly/folly/SpookyHashV2.cpp
+	#${PROJECT_SOURCE_DIR}/folly/folly/detail/MallocImpl.cpp
+	#${PROJECT_SOURCE_DIR}/folly/folly/portability/BitsFunctexcept.cpp
 	#${PROJECT_SOURCE_DIR}/folly/folly/Malloc.cpp
 	)
-
-# set test file list
-set(TEST_SRC_LIST
-	${PROJECT_SOURCE_DIR}/test/main.cpp
-)
 
 # decide use boost or not
 # in win32 platform use local boost, in unix and linux use host boost as default.
@@ -50,15 +45,17 @@ endif()
 # set source files and include directories
 set (PRIVATE_SRC_LIST ${PRIVATE_SRC_LIST}
 	${FOLLY_SRC_LIST}
-	${TEST_SRC_LIST}
 	)
 
+# set incoude directories
 set (PRIVATE_INCLUDE_DIRS ${PRIVATE_INCLUDE_DIRS}
 	${PROJECT_SOURCE_DIR}/folly
 	${PROJECT_SOURCE_DIR}/jemalloc/include
 	)
 
+# set compile flags
 add_compile_options(${PRIVATE_FOLLY_CXX_FLAGS})
+
 
 set (USE_JEMALLOC true)
 # decide use jemalloc or not
@@ -116,25 +113,32 @@ if (USE_JEMALLOC)
 	    INSTALL_DIR "${LIBRARY_OUTPUT_PATH}"
 	    INSTALL_COMMAND  "make"  install_include install_lib  install_bin
 	    )
+	# add dependencies for jemalloc
 	add_dependencies(libjemalloc-target ${PROJECT_SOURCE_DIR}/jemalloc/jemalloc-4.2.0/configure)
 	add_library(libjemalloc SHARED IMPORTED)
 	add_dependencies (libjemalloc libjemalloc-target)
 
-
 	elseif (NOT "PRIVATE_LIB_JEMALLOC-NOTFOUND" STREQUAL "${PRIVATE_LIB_JEMALLOC}")
+	# add library link
 	add_library(libjemalloc SHARED IMPORTED)
 	set_target_properties(libjemalloc PROPERTIES
 	    IMPORTED_LOCATION "${PRIVATE_LIB_JEMALLOC}"
 	    )
 	endif ()
-	
-    link_libraries(${CMAKE_CURRENT_BINARY_DIR}/lib/libjemalloc.so)
-    set (SRC_LIST ${PRIVATE_SRC_LIST})
+
+  link_libraries(${CMAKE_CURRENT_BINARY_DIR}/lib/libjemalloc.so)
+  set (SRC_LIST ${PRIVATE_SRC_LIST})
 	include_directories( ${PRIVATE_INCLUDE_DIRS} )
-	add_executable(testMain ${PRIVATE_SRC_LIST})
+	# build targets
+	add_executable(testFBString ${PRIVATE_SRC_LIST} ${PROJECT_SOURCE_DIR}/test/testFBString.cpp)
+	add_executable(testMain ${PRIVATE_SRC_LIST} ${PROJECT_SOURCE_DIR}/test/main.cpp)
 	add_dependencies(testMain libjemalloc)
+	add_dependencies(testFBString libjemalloc)
+
 else()
+	# build targets
 	set (SRC_LIST ${PRIVATE_SRC_LIST})
 	include_directories( ${PRIVATE_INCLUDE_DIRS} )
-	add_executable(testMain ${PRIVATE_SRC_LIST})
+	add_executable(testFBString ${PRIVATE_SRC_LIST} ${PROJECT_SOURCE_DIR}/test/testFBString.cpp)
+	add_executable(testMain ${PRIVATE_SRC_LIST} ${PROJECT_SOURCE_DIR}/test/main.cpp)
 endif()
