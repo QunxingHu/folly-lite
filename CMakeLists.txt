@@ -4,7 +4,6 @@ project (FOLLY-LITE)
 # initialize variables
 set(USE_JEMALLOC FALSE)
 set (PRIVATE_INCLUDE_DIRS "")
-set (PRIVATE_SRC_LIST "")
 
 # set complie flags
 set(CMAKE_VERBOSE_MAKEFILE on)
@@ -18,14 +17,6 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/lib)
 set(BUILD_OUT_PATH ${CMAKE_CURRENT_BINARY_DIR})
 
-# set folly source list
-set(FOLLY_SRC_LIST
-	#${PROJECT_SOURCE_DIR}/folly/folly/SpookyHashV1.cpp
-	#${PROJECT_SOURCE_DIR}/folly/folly/SpookyHashV2.cpp
-	#${PROJECT_SOURCE_DIR}/folly/folly/detail/MallocImpl.cpp
-	#${PROJECT_SOURCE_DIR}/folly/folly/portability/BitsFunctexcept.cpp
-	#${PROJECT_SOURCE_DIR}/folly/folly/Malloc.cpp
-	)
 
 # decide use boost or not
 # in win32 platform use local boost, in unix and linux use host boost as default.
@@ -41,11 +32,6 @@ else()
 	set(PRIVATE_FOLLY_CXX_FLAGS ${PRIVATE_FOLLY_CXX_FLAGS} -DLINUX)
 endif()
 
-
-# set source files and include directories
-set (PRIVATE_SRC_LIST ${PRIVATE_SRC_LIST}
-	${FOLLY_SRC_LIST}
-	)
 
 # set incoude directories
 set (PRIVATE_INCLUDE_DIRS ${PRIVATE_INCLUDE_DIRS}
@@ -130,8 +116,8 @@ if (USE_JEMALLOC)
   set (SRC_LIST ${PRIVATE_SRC_LIST})
 	include_directories( ${PRIVATE_INCLUDE_DIRS} )
 	# build targets
-	add_executable(testFBString ${PRIVATE_SRC_LIST} ${PROJECT_SOURCE_DIR}/test/testFBString.cpp)
-	add_executable(testMain ${PRIVATE_SRC_LIST} ${PROJECT_SOURCE_DIR}/test/main.cpp)
+	add_executable(testFBString ${PROJECT_SOURCE_DIR}/test/testFBString.cpp)
+	add_executable(testMain ${PROJECT_SOURCE_DIR}/test/main.cpp)
 	add_dependencies(testMain libjemalloc)
 	add_dependencies(testFBString libjemalloc)
 
