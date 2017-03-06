@@ -8,8 +8,11 @@ set (PRIVATE_INCLUDE_DIRS "")
 # set complie flags
 set(CMAKE_VERBOSE_MAKEFILE on)
 set(PRIVATE_FOLLY_CXX_FLAGS
-	"-pthread"
-	"-std=c++11"
+	"-lpthread"
+	"-std=gnu++1y"
+	"-g"
+	"-O2"  # use compiler option to improve performance
+	"-DHAVE_CONFIG_H"
 	)
 
 # set output path
@@ -113,18 +116,22 @@ if (USE_JEMALLOC)
 	endif ()
 
   link_libraries(${CMAKE_CURRENT_BINARY_DIR}/lib/libjemalloc.so)
+	link_libraries(pthread)
   set (SRC_LIST ${PRIVATE_SRC_LIST})
 	include_directories( ${PRIVATE_INCLUDE_DIRS} )
 	# build targets
 	add_executable(testFBString ${PROJECT_SOURCE_DIR}/test/testFBString.cpp)
 	add_executable(testMain ${PROJECT_SOURCE_DIR}/test/main.cpp)
+	add_executable(performanceCmp ${PROJECT_SOURCE_DIR}/test/performanceCmp.cpp)
 	add_dependencies(testMain libjemalloc)
 	add_dependencies(testFBString libjemalloc)
-
+	add_dependencies(performanceCmp libjemalloc)
 else()
 	# build targets
+	link_libraries(pthread)
 	set (SRC_LIST ${PRIVATE_SRC_LIST})
 	include_directories( ${PRIVATE_INCLUDE_DIRS} )
 	add_executable(testFBString ${PRIVATE_SRC_LIST} ${PROJECT_SOURCE_DIR}/test/testFBString.cpp)
 	add_executable(testMain ${PRIVATE_SRC_LIST} ${PROJECT_SOURCE_DIR}/test/main.cpp)
+	add_executable(performanceCmp ${PROJECT_SOURCE_DIR}/test/performanceCmp.cpp)
 endif()

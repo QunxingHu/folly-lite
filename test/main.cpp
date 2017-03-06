@@ -72,8 +72,8 @@ int main()
     std::copy(toAppend.begin(), toAppend.end(), std::back_inserter(str));
     std::cout << str << std::endl;
 
-#define N_TIMES 1000000
-    time_call("insert many things to fbvector", []{
+#define N_TIMES 10000000
+    time_call("insert to fbvector: ", []{
         folly::fbvector<int> vec;
         for (int i = 0; i < N_TIMES; ++i) {
             vec.push_back(i);
@@ -81,10 +81,9 @@ int main()
         for (int i = N_TIMES - 1; i > 0; --i) {
             vec[i - 1] += vec[i];
         }
-        std::cout << vec.front() << std::endl;
     });
 
-    time_call("insert many things to std::vector", []{
+    time_call("insert to std::vector", []{
         std::vector<int> vec;
         for (int i = 0; i < N_TIMES; ++i) {
             vec.push_back(i);
@@ -92,55 +91,48 @@ int main()
         for (int i = N_TIMES - 1; i > 0; --i) {
             vec[i - 1] += vec[i];
         }
-        std::cout << vec.front() << std::endl;
     });
 
-    time_call("append char[] to a fbstring many times", []{
+    time_call("append char[] to fbstring", []{
         folly::fbstring str;
         for (int i = 0; i < N_TIMES; ++i) {
             str += i%2?"hello":"world";
         }
-        std::cout << str.substr(0, 50) << std::endl;
     });
 
-    time_call("append char[] to a std::string many times", []{
+    time_call("append char[] to std::string", []{
         std::string str;
         for (int i = 0; i < N_TIMES; ++i) {
             str += i % 2 ? "hello" : "world";
         }
-        std::cout << str.substr(0, 50) << std::endl;
     });
 
-    time_call("append fbstring to a fbstring many times", []{
+    time_call("append fbstring to a fbstring", []{
         folly::fbstring str, hello = "hello", world = "world";
         for (int i = 0; i < N_TIMES; ++i) {
             str += i % 2 ? hello:world;
         }
-        std::cout << str.substr(0, 50) << std::endl;
     });
 
-    time_call("append std::string to a std::string many times", []{
+    time_call("append std::string to a std::string", []{
         std::string str, hello = "hello", world = "world";
         for (int i = 0; i < N_TIMES; ++i) {
             str += i % 2 ? hello : world;
         }
-        std::cout << str.substr(0, 50) << std::endl;
     });
 
-    time_call("append char to a fbstring many times", []{
+    time_call("append char to a fbstring", []{
         folly::fbstring str;
         for (int i = 0; i < N_TIMES; ++i) {
             str += i % 2 ? 'A':'B';
         }
-        std::cout << str.substr(0, 50) << std::endl;
     });
 
-    time_call("append char to a std::string many times", []{
+    time_call("append char to a std::string", []{
         std::string str;
         for (int i = 0; i < N_TIMES; ++i) {
             str += i % 2 ? 'A' : 'B';
         }
-        std::cout << str.substr(0, 50) << std::endl;
     });
 
     time_call("construct many fbstrings", []{
@@ -148,7 +140,6 @@ int main()
         for (int i = 0; i < N_TIMES; ++i) {
             strs.push_back(folly::fbstring(i%2?"hello":"world"));
         }
-        std::cout << strs[N_TIMES/3] << std::endl;
     });
 
     time_call("construct many std::strings", []{
@@ -156,7 +147,6 @@ int main()
         for (int i = 0; i < N_TIMES; ++i) {
             strs.push_back(std::string(i % 2 ? "hello" : "world"));
         }
-        std::cout << strs[N_TIMES / 3] << std::endl;
     });
 
     //static_assert(!std::is_trivially_copyable<NoneTrivial>::value, "oops!");
